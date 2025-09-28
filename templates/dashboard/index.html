@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard COVID-19</title>
+    {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <!-- Incluir Chart.js plugins para mapas -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://unpkg.com/chartjs-chart-geo@3.8.0/dist/chartjs-chart-geo.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    
+    <script>
+        (function() {
+            if (typeof Chart === 'undefined') {
+                try {
+                    var s = document.createElement('script');
+                    s.src = "{% static 'js/chart.min.js' %}";
+                    s.onload = function() { console.log('Chart.js carregado do fallback local.'); };
+                    s.onerror = function() { console.error('Falha ao carregar Chart.js do fallback local.'); };
+                    document.head.appendChild(s);
+                } catch (e) {
+                    console.error('Erro ao tentar carregar fallback do Chart.js:', e);
+                }
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Estilo do status API -->
+    <style>
+        .api-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .api-status.live {
+            background: #2ecc71;
+            color: white;
+        }
+        .api-status.mock {
+            background: #f39c12;
+            color: white;
+        }
+        .api-status.error {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="api-status" class="api-status" style="display: none;">
+        Status: <span id="api-status-text">Conectando...</span>
+    </div>
+
+    <div class="container">
+        <header class="text-center mb-4 p-3 rounded">
+            <h1>Dashboard COVID-19</h1>
+            <p>Análise comparativa e geográfica da pandemia mundial</p>
+        </header>
+
+        <!-- Cartões com estatísticas globais -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <h3>Casos Confirmados Globais</h3>
+                    <div id="total-cases" class="number">Carregando...</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <h3>Mortes Confirmadas Globais</h3>
+                    <div id="total-deaths" class="number">Carregando...</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <h3>Países Afetados</h3>
+                    <div id="total-countries" class="number">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline (largura total) -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="chart-container" id="timeline-container">
+                    <h2>📈 Evolução Temporal da COVID-19</h2>
+                    <div class="controls mb-2">
+                        <select id="country-select" class="form-select w-auto">
+                            <option value="global">Global</option>
+                            <option value="BR">Brasil</option>
+                            <option value="US">Estados Unidos</option>
+                            <option value="GB">Reino Unido</option>
+                            <option value="DE">Alemanha</option>
+                            <option value="FR">França</option> 
+                            <option value="IN">Índia</option>
+                            <option value="RU">Rússia</option>
+                        </select>
+                    </div>
+                    <div id="timeline-loading" class="loading-message"></div>
+                    <div id="timeline-error" class="error-message" style="display: none;"></div>
+                    <div class="chart-wrapper">
+                        <canvas id="timeline-chart" class="chart-canvas"></canvas>
+                    </div>
+                    <!-- Container para análise da curva -->
+                    <div id="timeline-analysis" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa mundial (largura total) -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="chart-container" id="worldmap-container">
+                    <h2>🌍 Distribuição Geográfica de Casos</h2>
+                    <div class="chart-description">
+                        Mapa mundial mostrando a intensidade dos casos de COVID-19 por país.
+                    </div>
+                    <div id="worldmap-loading" class="loading-message"></div>
+                    <div id="worldmap-error" class="error-message" style="display: none;"></div>
+                    <canvas id="worldmap-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Primeira linha dos gráficos secundários -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="chart-container" id="efficiency-container">
+                    <h3>🏥 Eficiência do Sistema de Saúde</h3>
+                    <div id="efficiency-loading" class="loading-message"></div>
+                    <div id="efficiency-error" class="error-message" style="display: none;"></div>
+                    <canvas id="efficiency-chart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container" id="economic-container">
+                    <h3>💼 Impacto Econômico × Saúde</h3>
+                    <div id="economic-loading" class="loading-message"></div>
+                    <div id="economic-error" class="error-message" style="display: none;"></div>
+                    <canvas id="economic-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda linha dos gráficos secundários -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="chart-container" id="region-container">
+                    <h3>🌐 Comparação por Continente</h3>
+                    <div id="region-loading" class="loading-message"></div>
+                    <div id="region-error" class="error-message" style="display: none;"></div>
+                    <canvas id="region-chart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container" id="ranking-container">
+                    <h3>🏆 Ranking de Desempenho</h3>
+                    <div id="ranking-loading" class="loading-message"></div>
+                    <div id="ranking-error" class="error-message" style="display: none;"></div>
+                    <canvas id="ranking-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/charts.js' %}"></script>
+</body>
+</html>

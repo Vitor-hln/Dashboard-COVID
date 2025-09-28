@@ -1,0 +1,210 @@
+/* ======= ESTILO GERAL ======= */
+body {
+  background: #f4f6f9;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #2c3e50;
+  padding-bottom: 60px; /* Espaço no final da página */
+}
+
+/* ======= CABEÇALHO ======= */
+header {
+  background: #c074f3;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+header p {
+  font-size: 1rem;
+  color: #555;
+  margin: 0;
+}
+
+/* ======= CARTÕES DE ESTATÍSTICAS ======= */
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.card .number {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* ======= CONTAINERS DE GRÁFICOS ======= */
+.chart-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  min-height: 350px;
+}
+.chart-container h2,
+.chart-container h3 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+/* ======= BORDAS COLORIDAS PARA DIFERENCIAR GRÁFICOS ======= */
+#timeline-container   { 
+  border-left: 5px solid #667eea; 
+  min-height: auto; /* Mantém o timeline flexível */
+}
+#timeline-container canvas { 
+  height: 50vh; 
+}
+
+#worldmap-container { 
+  border-left: 5px solid #8e44ad; 
+  min-height: auto; /* Mantém o mapa flexível */
+}
+#worldmap-container canvas { 
+  height: 30vh; 
+}
+
+#efficiency-container { 
+  border-left: 5px solid #16a085; 
+  height: 400px; /* Altura fixa para uniformizar */
+}
+#economic-container { 
+  border-left: 5px solid #c0392b; 
+  height: 400px; /* Altura fixa para uniformizar */
+}
+#region-container { 
+  border-left: 5px solid #d35400; 
+  height: 400px; /* Altura fixa para uniformizar */
+}
+#ranking-container { 
+  border-left: 5px solid #27ae60; 
+  height: 400px; /* Altura fixa para uniformizar */
+}
+
+/* ======= UNIFORMIZAÇÃO DOS ÚLTIMOS 4 GRÁFICOS ======= */
+#efficiency-chart, 
+#economic-chart, 
+#region-chart, 
+#ranking-chart {
+  height: 300px !important; /* Altura específica para os canvas */
+  max-height: 300px;
+}
+
+/* ======= CONTROLES (select, filtros, etc) ======= */
+.controls {
+  margin-bottom: 12px;
+}
+.controls select {
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+/* ======= MENSAGENS DE LOADING E ERRO ======= */
+.loading-message {
+  display: none;
+  text-align: center;
+  padding: 20px;
+  color: #3498db;
+  font-style: italic;
+}
+
+.error-message {
+  text-align: center;
+  padding: 15px;
+  background-color: #ffe6e6;
+  border: 1px solid #ffcccc;
+  border-radius: 5px;
+  color: #d9534f;
+  margin: 10px 0;
+}
+
+/* ======= ANÁLISE DA CURVA EPIDEMIOLÓGICA ======= */
+.curve-analysis {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.curve-analysis h4 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.analysis-item {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #3498db;
+  display: flex;
+  flex-direction: column;
+}
+
+.analysis-item strong {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-bottom: 4px;
+}
+
+.analysis-item span {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* ======= ESPAÇAMENTO ENTRE LINHAS DOS GRÁFICOS ======= */
+.row.g-3 + .row.g-3 {
+  margin-top: 20px;
+}
+
+/* ======= RESPONSIVIDADE EXTRA ======= */
+@media (max-width: 768px) {
+  .chart-container {
+    margin-bottom: 15px;
+    min-height: 300px;
+  }
+  
+  /* Ajustar altura dos últimos 4 gráficos em mobile */
+  #efficiency-container,
+  #economic-container,
+  #region-container,
+  #ranking-container {
+    height: 350px;
+  }
+  
+  #efficiency-chart, 
+  #economic-chart, 
+  #region-chart, 
+  #ranking-chart {
+    height: 250px !important;
+  }
+  
+  header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .card .number {
+    font-size: 1.5rem;
+  }
+  
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+}
