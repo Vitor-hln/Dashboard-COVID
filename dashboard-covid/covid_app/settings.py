@@ -1,13 +1,48 @@
 import os
+from dotenv import load_dotenv
 from pathlib import Path
+
+
+
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-sua-chave-secreta-aqui-2024-covid-dashboard'
+# Carrega as variáveis de ambiente do arquivo .env
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
+# Segurança - Não deixar DEBUG ativo em produção
 DEBUG = True
+                       
+ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost"]
 
-ALLOWED_HOSTS = []
+
+
+#CSRF_TRUSTED_ORIGINS = [
+#    origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+#    if origin.strip()
+
+ 
+ # Database BASE DO DJANGO
+#DATABASES = {
+# 'default': {
+#     'ENGINE': 'django.db.backends.sqlite3',
+#     'NAME': BASE_DIR / 'db.sqlite3',
+# }
+#}
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('POSTGRES_DB', 'covid_dashboard'),
+        'USER': os.getenv('POSTGRES_USER', 'user_db'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'senha_db'),
+        'HOST': os.getenv('POSTGRES_HOST', 'postgres_demonstrativo'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432')
+    }
+}
+        
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,13 +84,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'covid_app.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -76,7 +104,30 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
+
+# Arquivos estáticos (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Diretório onde o collectstatic vai coletar TODOS os arquivos estáticos
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Diretórios adicionais onde o Django procura por arquivos estáticos
+# (além dos diretórios static/ dentro de cada app)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Se estiver usando WhiteNoise para servir arquivos estáticos
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+#  USAR QUANDO NECESSARIO 
+
+#AUTH_USER_MODEL = 'auth.User'
+#
+#LOGIN_REDIRECT_URL = '/'
+#LOGOUT_REDIRECT_URL = '/login/'

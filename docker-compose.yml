@@ -1,0 +1,41 @@
+services:
+  dashboard: 
+    container_name: dashboard 
+    environment:    
+      - STATIC_URL=/static/
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - 5000:8000
+    volumes:
+      - ./dashboard-covid:/dashboard-covid
+    env_file:
+      - ./env_files/.env
+    
+
+    depends_on:
+      - postgres_demonstrativo
+  
+ 
+
+  postgres_demonstrativo:
+
+    container_name: postgres_demonstrativo
+    image: postgres:14-alpine 
+
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data/
+
+    env_file:
+      - ./env_files/.env
+    
+    ports:
+      - 5001:5432
+
+    
+    restart: unless-stopped 
+   
+
+volumes:
+  postgres_data:
